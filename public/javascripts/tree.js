@@ -1,41 +1,55 @@
-class Tree{
-    constructor(){
+class Tree {
+    constructor() {
         this.points = [];
         this.segments = [];
         this.mainPoints = [];
-        
+
     }
-    grow(x, y){
-        let index = this.points.length
+    grow(x, y) {
+        let index = this.points.length;
+        let index0 = this.mainPoints.length - 1;
+        let parentIndex = this.mainPoints[index0];
+        this.mainPoints.push(index);
+        let dx = 0;
+        let dy = 0;
+        if (index>0) {
+            dx = x - this.points[parentIndex].x;
+            dy = y - this.points[parentIndex].y;
+            this.segments.push({
+                b: index,
+                a: parentIndex,
+                weight: 60 / this.mainPoints.length
+            })
+        }
         this.points.push({
             x: x,
             y: y,
             weight: 60 / (this.mainPoints.length + 1),
-            childs: 0
+            childs: 0,
+            l: Math.sqrt(dx * dx + dy * dy),
+            a: Math.atan2(dy, dx),
+            parent: parentIndex
         });
-        this.mainPoints.push(index)
-        if (index > 0) {
-            this.segments.push({
-                b: index,
-                a: this.mainPoints[this.mainPoints.length - 2],
-                weight: 60 / this.mainPoints.length
-            })
-        }
-
-        let num = Math.round(Math.random() * 20 + 1)
+        
+        let num = this.points.length
         for (let i = 0; i < num; i++) {
             let index2 = Math.ceil(Math.random() * (this.points.length - 1));
-
             if (this.points[index2].childs < 7) {
-                let a = -Math.PI / 2 + Math.cos(Math.random() * Math.PI * 2) * Math.PI / 2;
+                let a = - Math.PI / 2 + Math.cos(Math.random() * Math.PI * 2) * Math.PI / 4;
                 let l = Math.random() * 60 + 40;
                 let nx = Math.cos(a) * l + this.points[index2].x;
                 let ny = Math.sin(a) * l + this.points[index2].y;
+                let dx = nx - this.points[index2].x;
+                let dy = ny - this.points[index2].y;
+
                 this.points.push({
                     x: nx,
                     y: ny,
                     weight: this.points[index2].weight / 2,
-                    childs: 5
+                    childs: 5,
+                    parent: index2,
+                    a: Math.atan2(dy, dx),
+                    l: Math.sqrt(dx * dx + dy*  dy)
                 });
                 this.segments.push({
                     b: this.points.length - 1,
@@ -52,7 +66,7 @@ class Tree{
         ctx.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
         ctx.lineWidth = 1;
         for (let i = 0; i < this.points.length; i++) {
-            
+
             ctx.beginPath();
             ctx.arc(
                 this.points[i].x,
@@ -82,10 +96,14 @@ class Tree{
         }
     }
     move(time) {
-        for (let i = 0; i < this.points.length; i++) {
-            
-            this.points[i].x += Math.cos(time / 60 + i + this.points[i].y / 1024 * 12) / 20 
-            this.points[i].y += Math.cos(time / 60 + i / 20 + this.points[i].x / 1024 * 17)  / 20
+        for (let i = 1; i < this.points.length; i++) {
+
+            let parent = this.points[this.points[i].parent]
+            this.points[i].a += Math.cos(time / 200 + i / 80 * 17 + this.points[i].x / 1024 * 17) * Math.PI / 8000;
+            this.points[i].x = Math.cos(this.points[i].a) * this.points[i].l + parent.x
+            this.points[i].y = Math.sin(this.points[i].a) * this.points[i].l + parent.y
+
+
         }
     }
 }
