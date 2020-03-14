@@ -7,7 +7,7 @@ let tree;
 let time = 0;
 
 window.onload = function () {
-    ctx = new Canvas(w);
+    ctx = new Canvas(w, w, true);
     tree = new Tree();
     ctx.canvas.onclick = clickHandler
 
