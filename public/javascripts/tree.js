@@ -67,6 +67,7 @@ class Tree {
                 let dy = ny - parent.y;
                 let weight2 = parent.weight / 2;
                 let canvas2 = new Canvas(ll, weight2, false);
+                
                 canvas2.ctx.drawImage(
                     this.image,
                     (this.image.width - ll) * Math.random(),
@@ -89,6 +90,47 @@ class Tree {
                     l: ll,
                     image: canvas2.canvas
                 });
+
+
+                if(Math.random() >.5){
+                    let r = Math.random() * 30 + 5
+                    let canvas3 = new Canvas(r, r, false);
+                    canvas3.ctx.beginPath()
+                    canvas3.ctx.arc(
+                        r / 2, r / 2, r / 2, 0, Math.PI * 2
+                    )
+                    canvas3.ctx.closePath()
+                    canvas3.ctx.fill();
+                    canvas3.ctx.save()
+                    canvas3.ctx.globalCompositeOperation = 'source-in'
+                    canvas3.ctx.drawImage(
+                        this.image,
+                        (this.image.width - r) * Math.random(),
+                        (this.image.height - r) * Math.random(),
+                        r,
+                        r,
+                        0,
+                        0,
+                        r,
+                        r
+                    );
+                    canvas3.ctx.restore()
+                    canvas3.ctx.globalCompositeOperation = 'screen';
+                    canvas3.ctx.fillStyle = 'green'
+                    canvas3.ctx.beginPath()
+                    canvas3.ctx.arc(
+                        r / 2, r / 2, r / 2, 0, Math.PI * 2
+                    )
+                    canvas3.ctx.closePath()
+                    canvas3.ctx.fill();
+                    this.leaves.push({
+                        parent: this.points.length - 1,
+                        image: canvas3.canvas,
+                        r: r
+                    })
+                }
+
+               
                 
                 parent.childs += 1
             }
@@ -108,6 +150,20 @@ class Tree {
                     this.points[i].image,
                     -this.points[i].weight / 2,
                     -this.points[i].weight / 2
+                )
+                ctx.restore()
+            }
+           
+        }
+        for (let i = 0; i < this.leaves.length; i++) {
+            if(i>0){
+                ctx.save();
+                let ii = this.leaves[i].parent;
+                ctx.translate(this.points[ii].x,this.points[ii].y);
+                ctx.drawImage(
+                    this.leaves[i].image,
+                    -this.leaves[i].r / 2,
+                    -this.leaves[i].r / 2
                 )
                 ctx.restore()
             }
